@@ -1,21 +1,22 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-cream: #f9f7f4;
-  --color-brand-cream-dark: #f0ebe1;
-  --color-brand-charcoal: #222222;
-  --color-brand-charcoal-light: #555555;
-  --color-brand-charcoal-lighter: #888888;
+  --color-brand-background: #090C0E;
+  --color-brand-surface: #151b18;
+  --color-brand-surface-light: #1e2622;
   
-  /* Accent: Muted Terracotta */
-  --color-brand-accent: #c08552;
-  --color-brand-accent-light: #d4a373;
-  --color-brand-accent-dark: #a66f42;
+  --color-brand-charcoal: #f3f4f1; /* Now warm white for dark mode */
+  --color-brand-charcoal-light: #9ea8a3; /* Muted gray-green */
+  --color-brand-charcoal-lighter: #68736d;
+  
+  /* Accent: Subtle Natural Green */
+  --color-brand-accent: #5e8b70;
+  --color-brand-accent-light: #7da58c;
+  --color-brand-accent-dark: #3a5c49;
   
   /* Neutrals */
-  --color-brand-surface: #ffffff;
-  --color-brand-border: #e2e2e2;
-  --color-brand-border-light: #f0f0f0;
+  --color-brand-border: #232d29;
+  --color-brand-border-light: #2c3833;
   
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-serif: 'Playfair Display', Georgia, serif;
@@ -29,7 +30,7 @@
 
 @layer base {
   :root {
-    --background: var(--color-brand-cream);
+    --background: var(--color-brand-background);
     --foreground: var(--color-brand-charcoal);
   }
 
