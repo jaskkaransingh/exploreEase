@@ -4,6 +4,7 @@ import { Compass, Search, Heart, User, Menu, X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "../ui/Button"
 import { cn } from "../../lib/utils"
+import { EASE, DURATION_FAST } from "../../lib/motion"
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -19,13 +20,14 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  // Close mobile menu on route change
-  useEffect(() => {
+  const [prevLocation, setPrevLocation] = useState(location.pathname)
+  if (location.pathname !== prevLocation) {
+    setPrevLocation(location.pathname)
     setMobileMenuOpen(false)
-  }, [location.pathname])
+  }
 
   const navLinks = [
-    { name: "Explore", path: "/explore" },
+    { name: "Explore", path: "/" },
     { name: "Places", path: "/places" },
     { name: "My Trips", path: "/trips" },
   ]
@@ -33,15 +35,16 @@ export default function Navbar() {
   return (
     <>
       <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className={cn(
-          "fixed top-0 inset-x-0 z-50 transition-all duration-300 pointer-events-auto",
-          isScrolled 
-            ? "bg-transparent py-4" 
-            : "bg-transparent py-6"
-        )}
+        initial={{ y: -100, paddingTop: 24, paddingBottom: 24, backgroundColor: "rgba(9,12,14,0)", backdropFilter: "blur(0px)" }}
+        animate={{
+          y: 0,
+          paddingTop: isScrolled ? 16 : 24,
+          paddingBottom: isScrolled ? 16 : 24,
+          backgroundColor: isScrolled ? "rgba(9,12,14,0.55)" : "rgba(9,12,14,0)",
+          backdropFilter: isScrolled ? "blur(14px)" : "blur(0px)",
+        }}
+        transition={{ duration: DURATION_FAST, ease: EASE }}
+        className="fixed top-0 inset-x-0 z-50 pointer-events-auto"
       >
         <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
           

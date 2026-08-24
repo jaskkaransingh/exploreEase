@@ -1,7 +1,11 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { ArrowLeft, ArrowRight, Search, MapPin } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { ArrowLeft, ArrowRight, Search, MapPin, Plane, Compass, Luggage } from "lucide-react"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
+import { AmbientGlow } from "../components/ui/AmbientGlow"
+import { DynamicPageBackground } from "../components/ui/DynamicPageBackground"
+import { FlightPath } from "../components/ui/FlightPath"
+import { EASE, hoverLift } from "../lib/motion"
 
 // Steps matching the prompt
 const STEPS = [
@@ -12,9 +16,28 @@ const STEPS = [
   { id: "vibe", title: "What do you want more of?", subtitle: "05 VIBE" }
 ]
 
+const VIBES = [
+  { label: "NATURE", emoji: "🌲" },
+  { label: "ADVENTURE", emoji: "⛰️" },
+  { label: "FOOD", emoji: "🍜" },
+  { label: "CULTURE", emoji: "🕌" },
+  { label: "ART", emoji: "🎨" },
+  { label: "SHOPPING", emoji: "🛍️" },
+  { label: "NIGHTLIFE", emoji: "🍸" },
+  { label: "SLOW TRAVEL", emoji: "☕" }
+]
+
+const DESTINATIONS = [
+  { name: "Manali, Himachal Pradesh", id: "manali" },
+  { name: "Munnar, Kerala", id: "munnar" },
+  { name: "Jaipur, Rajasthan", id: "jaipur" },
+  { name: "Goa, Konkan Coast", id: "goa" }
+]
+
 export default function Plan() {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(0)
+  const reduced = useReducedMotion()
   
   // State for selections
   const [destination, setDestination] = useState("")
@@ -45,14 +68,37 @@ export default function Plan() {
     )
   }
 
+  // Dynamic glow color based on step
+  const glowColors = [
+    "bg-[var(--color-brand-accent-dark)]",
+    "bg-[#3a4a5c]", // cool blue for dates
+    "bg-[#5c4a3a]", // warm orange for people
+    "bg-[#3a5c4a]", // green for money
+    "bg-[var(--color-brand-accent)]"
+  ]
+
   return (
-    <div className="min-h-screen bg-[var(--color-brand-background)] text-[var(--color-brand-charcoal)] font-sans flex flex-col relative overflow-hidden selection:bg-[var(--color-brand-surface-light)]">
-      
-      {/* Background visual element to keep it cinematic but minimal */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--color-brand-surface-light),transparent_50%)]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,var(--color-brand-surface-light),transparent_50%)]"></div>
-      </div>
+    <div className="min-h-screen bg-transparent text-[var(--color-brand-charcoal)] font-sans flex flex-col relative overflow-hidden selection:bg-[var(--color-brand-surface-light)]">
+      <DynamicPageBackground />
+      <AmbientGlow 
+        className={`top-[30%] right-[10%] w-[40vw] h-[40vw] ${glowColors[currentStep]} opacity-40 transition-colors duration-1000`} 
+        duration={30} 
+      />
+
+      {/* Floating Icons */}
+      {!reduced && (
+        <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center opacity-20">
+          <div className="relative w-[500px] h-[500px] animate-orbit" style={{ '--orbit-radius': '350px', '--orbit-duration': '40s' } as any}>
+            <Plane className="absolute top-0 left-0 w-8 h-8 text-[var(--color-brand-charcoal)] animate-float" />
+          </div>
+          <div className="relative w-[500px] h-[500px] animate-orbit" style={{ '--orbit-radius': '-400px', '--orbit-duration': '50s' } as any}>
+            <Compass className="absolute top-0 left-0 w-10 h-10 text-[var(--color-brand-accent)] animate-float" />
+          </div>
+          <div className="relative w-[500px] h-[500px] animate-orbit" style={{ '--orbit-radius': '250px', '--orbit-duration': '60s' } as any}>
+            <Luggage className="absolute top-0 left-0 w-6 h-6 text-[var(--color-brand-charcoal-light)] animate-float" />
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <header className="relative z-10 w-full px-8 py-8 flex justify-between items-center">
@@ -62,9 +108,14 @@ export default function Plan() {
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
-        <div className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--color-brand-accent)]">
+        <motion.div 
+          key={STEPS[currentStep].subtitle}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-[10px] font-bold tracking-[0.3em] uppercase text-[var(--color-brand-accent)]"
+        >
           {STEPS[currentStep].subtitle}
-        </div>
+        </motion.div>
         <button 
           onClick={() => navigate('/')}
           className="text-[10px] font-bold tracking-[0.2em] uppercase text-[var(--color-brand-charcoal-light)] hover:text-[var(--color-brand-charcoal)] transition-colors"
@@ -74,15 +125,15 @@ export default function Plan() {
       </header>
 
       {/* Main Content Area */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 w-full max-w-4xl mx-auto">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 w-full max-w-4xl mx-auto perspective-1000">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentStep}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="w-full flex flex-col items-center text-center"
+            initial={{ opacity: 0, y: 40, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -40, scale: 1.05 }}
+            transition={{ duration: 0.5, ease: EASE }}
+            className="w-full flex flex-col items-center text-center preserve-3d"
           >
             <h1 className="text-4xl md:text-6xl font-serif text-[var(--color-brand-charcoal)] mb-16 tracking-tight text-balance">
               {STEPS[currentStep].title}
@@ -91,6 +142,7 @@ export default function Plan() {
             {/* STEP 1: WHERE */}
             {currentStep === 0 && (
               <div className="w-full max-w-2xl relative">
+                <FlightPath startX={-20} startY={80} endX={120} endY={20} curvature={0.3} className="opacity-15 -z-10 absolute -inset-x-20 -inset-y-10" />
                 <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--color-brand-charcoal-light)] w-6 h-6" />
                 <input 
                   type="text" 
@@ -101,13 +153,21 @@ export default function Plan() {
                   autoFocus
                 />
                 {destination && (
-                  <motion.div initial={{opacity:0}} animate={{opacity:1}} className="absolute top-full left-0 w-full mt-4 bg-[var(--color-brand-surface)] border border-[var(--color-brand-border)] rounded-2xl overflow-hidden text-left shadow-2xl">
-                    <button onClick={() => { setDestination("Manali, Himachal Pradesh"); handleNext(); }} className="w-full px-6 py-4 hover:bg-[var(--color-brand-surface-light)] transition-colors flex items-center gap-4 text-lg border-b border-[var(--color-brand-border)]">
-                      <MapPin className="text-[var(--color-brand-charcoal-light)] w-5 h-5" /> Manali, Himachal Pradesh
-                    </button>
-                    <button onClick={() => { setDestination("Munnar, Kerala"); handleNext(); }} className="w-full px-6 py-4 hover:bg-[var(--color-brand-surface-light)] transition-colors flex items-center gap-4 text-lg">
-                      <MapPin className="text-[var(--color-brand-charcoal-light)] w-5 h-5" /> Munnar, Kerala
-                    </button>
+                  <motion.div 
+                    initial={{opacity: 0, y: 10}} 
+                    animate={{opacity: 1, y: 0}} 
+                    className="absolute top-full left-0 w-full mt-4 bg-[var(--color-brand-surface)]/90 backdrop-blur-md border border-[var(--color-brand-border)] rounded-2xl overflow-hidden text-left shadow-2xl"
+                  >
+                    {DESTINATIONS.filter(d => d.name.toLowerCase().includes(destination.toLowerCase())).map((dest) => (
+                      <button 
+                        key={dest.id}
+                        onClick={() => { setDestination(dest.name); handleNext(); }} 
+                        className="w-full px-6 py-4 hover:bg-[var(--color-brand-surface-light)] transition-colors flex items-center gap-4 text-lg border-b border-[var(--color-brand-border)] last:border-0 group"
+                      >
+                        <MapPin className="text-[var(--color-brand-charcoal-light)] w-5 h-5 group-hover:text-[var(--color-brand-accent)] transition-colors" /> 
+                        {dest.name}
+                      </button>
+                    ))}
                   </motion.div>
                 )}
               </div>
@@ -117,71 +177,88 @@ export default function Plan() {
             {currentStep === 1 && (
               <div className="w-full max-w-xl">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="border border-[var(--color-brand-border)] rounded-2xl p-6 bg-[var(--color-brand-surface)] cursor-pointer hover:border-[var(--color-brand-charcoal-light)] transition-colors">
+                  <motion.div 
+                    whileHover={{ scale: 1.02, rotateY: 5, rotateX: 5 }}
+                    className="border border-[var(--color-brand-border)] rounded-2xl p-6 bg-[var(--color-brand-surface)]/80 backdrop-blur-md cursor-pointer hover:border-[var(--color-brand-charcoal-light)] transition-colors"
+                  >
                     <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[var(--color-brand-charcoal-light)] block mb-2">Start Date</span>
                     <span className="text-xl font-serif">12 September</span>
-                  </div>
-                  <div className="border border-[var(--color-brand-border)] rounded-2xl p-6 bg-[var(--color-brand-surface)] cursor-pointer hover:border-[var(--color-brand-charcoal-light)] transition-colors">
+                  </motion.div>
+                  <motion.div 
+                    whileHover={{ scale: 1.02, rotateY: -5, rotateX: 5 }}
+                    className="border border-[var(--color-brand-border)] rounded-2xl p-6 bg-[var(--color-brand-surface)]/80 backdrop-blur-md cursor-pointer hover:border-[var(--color-brand-charcoal-light)] transition-colors"
+                  >
                     <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[var(--color-brand-charcoal-light)] block mb-2">End Date</span>
                     <span className="text-xl font-serif">16 September</span>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
             )}
 
             {/* STEP 3: WHO */}
             {currentStep === 2 && (
-              <div className="w-full max-w-2xl grid grid-cols-2 gap-4">
-                {["SOLO", "COUPLE", "FRIENDS", "FAMILY"].map((option) => (
-                  <button 
-                    key={option}
-                    onClick={() => { setWho(option); setTimeout(handleNext, 300); }}
-                    className={`py-8 rounded-2xl text-[13px] font-bold tracking-[0.2em] uppercase transition-all border ${
-                      who === option 
-                        ? 'bg-[var(--color-brand-charcoal)] text-[var(--color-brand-background)] border-[var(--color-brand-charcoal)]' 
-                        : 'bg-[var(--color-brand-surface)] border-[var(--color-brand-border)] text-[var(--color-brand-charcoal)] hover:border-[var(--color-brand-charcoal-light)]'
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
+              <div className="w-full max-w-2xl grid grid-cols-2 gap-4 perspective-800">
+                {["SOLO", "COUPLE", "FRIENDS", "FAMILY"].map((option, idx) => {
+                  const rotateYDir = idx % 2 === 0 ? 10 : -10;
+                  return (
+                    <motion.button 
+                      key={option}
+                      whileHover={{ scale: 1.03, rotateY: rotateYDir, rotateX: 5 }}
+                      onClick={() => { setWho(option); setTimeout(handleNext, 300); }}
+                      className={`py-8 rounded-2xl text-[13px] font-bold tracking-[0.2em] uppercase transition-all duration-300 border preserve-3d shadow-sm ${
+                        who === option 
+                          ? 'bg-[var(--color-brand-charcoal)] text-[var(--color-brand-background)] border-[var(--color-brand-charcoal)]' 
+                          : 'bg-[var(--color-brand-surface)]/80 backdrop-blur-md border-[var(--color-brand-border)] text-[var(--color-brand-charcoal)] hover:border-[var(--color-brand-charcoal-light)] hover:shadow-lg'
+                      }`}
+                    >
+                      {option}
+                    </motion.button>
+                  )
+                })}
               </div>
             )}
 
             {/* STEP 4: BUDGET */}
             {currentStep === 3 && (
-              <div className="w-full max-w-3xl flex flex-wrap justify-center gap-4">
-                {["₹10K", "₹20K", "₹30K", "₹50K", "₹75K+"].map((option) => (
-                  <button 
-                    key={option}
-                    onClick={() => { setBudget(option); setTimeout(handleNext, 300); }}
-                    className={`px-8 py-5 rounded-full text-2xl font-serif transition-all border ${
-                      budget === option 
-                        ? 'bg-[var(--color-brand-charcoal)] text-[var(--color-brand-background)] border-[var(--color-brand-charcoal)]' 
-                        : 'bg-[var(--color-brand-surface)] border-[var(--color-brand-border)] text-[var(--color-brand-charcoal)] hover:border-[var(--color-brand-charcoal-light)]'
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
+              <div className="w-full max-w-3xl flex flex-wrap justify-center gap-4 perspective-800">
+                {["₹10K", "₹20K", "₹30K", "₹50K", "₹75K+"].map((option, idx) => {
+                  const rotateDir = idx % 2 === 0 ? 5 : -5;
+                  return (
+                    <motion.button 
+                      key={option}
+                      whileHover={{ scale: 1.05, rotateY: rotateDir }}
+                      onClick={() => { setBudget(option); setTimeout(handleNext, 300); }}
+                      className={`px-8 py-5 rounded-full text-2xl font-serif transition-all duration-300 border shadow-sm ${
+                        budget === option 
+                          ? 'bg-[var(--color-brand-charcoal)] text-[var(--color-brand-background)] border-[var(--color-brand-charcoal)] shadow-[0_0_20px_rgba(243,244,241,0.2)]' 
+                          : 'bg-[var(--color-brand-surface)]/80 backdrop-blur-md border-[var(--color-brand-border)] text-[var(--color-brand-charcoal)] hover:border-[var(--color-brand-charcoal-light)]'
+                      }`}
+                    >
+                      {option}
+                    </motion.button>
+                  )
+                })}
               </div>
             )}
 
             {/* STEP 5: VIBE */}
             {currentStep === 4 && (
               <div className="w-full max-w-3xl flex flex-wrap justify-center gap-3">
-                {["NATURE", "ADVENTURE", "FOOD", "CULTURE", "ART", "SHOPPING", "NIGHTLIFE", "SLOW TRAVEL"].map((vibe) => (
-                  <button 
-                    key={vibe}
-                    onClick={() => toggleVibe(vibe)}
-                    className={`px-6 py-4 rounded-full text-[11px] font-bold tracking-[0.15em] uppercase transition-all border ${
-                      vibes.includes(vibe)
-                        ? 'bg-[var(--color-brand-charcoal)] text-[var(--color-brand-background)] border-[var(--color-brand-charcoal)]' 
-                        : 'bg-transparent border-[var(--color-brand-border)] text-[var(--color-brand-charcoal)] hover:border-[var(--color-brand-charcoal-light)]'
+                {VIBES.map(({ label, emoji }) => (
+                  <motion.button 
+                    key={label}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => toggleVibe(label)}
+                    className={`px-6 py-4 rounded-full text-[11px] font-bold tracking-[0.15em] uppercase transition-all duration-300 border flex items-center gap-2 ${
+                      vibes.includes(label)
+                        ? 'bg-[var(--color-brand-charcoal)] text-[var(--color-brand-background)] border-[var(--color-brand-charcoal)] shadow-[0_0_15px_rgba(243,244,241,0.15)]' 
+                        : 'bg-[var(--color-brand-surface)]/60 backdrop-blur-md border-[var(--color-brand-border)] text-[var(--color-brand-charcoal)] hover:border-[var(--color-brand-charcoal-light)]'
                     }`}
                   >
-                    {vibe}
-                  </button>
+                    <span className="text-sm">{emoji}</span>
+                    {label}
+                  </motion.button>
                 ))}
               </div>
             )}
@@ -196,24 +273,32 @@ export default function Plan() {
         {/* Progress indicators */}
         <div className="flex gap-2">
           {STEPS.map((_, idx) => (
-            <div 
+            <motion.div 
               key={idx} 
-              className={`h-[2px] transition-all duration-500 ${idx <= currentStep ? 'w-12 bg-[var(--color-brand-charcoal)]' : 'w-6 bg-[var(--color-brand-border)]'}`}
-            ></div>
+              initial={false}
+              animate={{ 
+                width: idx <= currentStep ? 48 : 24,
+                backgroundColor: idx <= currentStep ? 'var(--color-brand-charcoal)' : 'var(--color-brand-border)'
+              }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="h-[2px] rounded-full"
+            />
           ))}
         </div>
 
-        <button 
+        <motion.button 
+          whileHover={hoverLift}
+          whileTap={{ scale: 0.95 }}
           onClick={handleNext}
-          className={`px-10 py-5 rounded-full text-[12px] font-bold tracking-[0.15em] uppercase flex items-center gap-3 transition-all ${
+          className={`px-10 py-5 rounded-full text-[12px] font-bold tracking-[0.15em] uppercase flex items-center gap-3 transition-all duration-500 ${
             currentStep === STEPS.length - 1 
-              ? 'bg-[var(--color-brand-accent)] text-[var(--color-brand-background)] hover:bg-[var(--color-brand-accent-light)] shadow-lg' 
+              ? 'bg-[var(--color-brand-accent)] text-[var(--color-brand-background)] hover:bg-[var(--color-brand-accent-light)] shadow-[0_0_30px_rgba(94,139,112,0.3)] animate-pulse-glow' 
               : 'bg-[var(--color-brand-charcoal)] text-[var(--color-brand-background)] hover:bg-[var(--color-brand-charcoal-light)]'
           }`}
         >
           {currentStep === STEPS.length - 1 ? "Build My Trip" : "Next"} 
           <ArrowRight className="w-4 h-4" />
-        </button>
+        </motion.button>
       </footer>
 
     </div>

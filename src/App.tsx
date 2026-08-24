@@ -13,6 +13,28 @@ import Trips from "./pages/Trips"
 import Profile from "./pages/Profile"
 import Footer from "./components/layout/Footer"
 import MobileNav from "./components/layout/MobileNav"
+import AmbientBackground from "./components/ui/ambient/AmbientBackground"
+import { ScrollProgressBar } from "./components/ui/ScrollProgressBar"
+import { AnimatePresence } from "framer-motion"
+import { useLocation } from "react-router-dom"
+
+function MainContent() {
+  const location = useLocation()
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Landing />} />
+        <Route path="/plan" element={<Plan />} />
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/trip/:tripId" element={<TripDash />} />
+        <Route path="/places" element={<Places />} />
+        <Route path="/trips" element={<Trips />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="*" element={<div className="p-24 text-center text-2xl font-serif">404 - Page not found</div>} />
+      </Routes>
+    </AnimatePresence>
+  )
+}
 
 function App() {
   useEffect(() => {
@@ -37,19 +59,11 @@ function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen flex flex-col bg-[var(--color-brand-background)] text-[var(--color-brand-charcoal)]">
+        <ScrollProgressBar />
+        <AmbientBackground />
         <Navbar />
         <main className="flex-1 flex flex-col relative">
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/plan" element={<Plan />} />
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/trip/:tripId" element={<TripDash />} />
-            <Route path="/places" element={<Places />} />
-            <Route path="/trips" element={<Trips />} />
-            <Route path="/profile" element={<Profile />} />
-            {/* Fallback route */}
-            <Route path="*" element={<div className="p-24 text-center text-2xl font-serif">404 - Page not found</div>} />
-          </Routes>
+          <MainContent />
         </main>
         <MobileNav />
         <Footer />

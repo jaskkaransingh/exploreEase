@@ -16,11 +16,11 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
         {/* We would typically use a library like Radix UI for a proper accessible multi-thumb slider.
             For this UI mockup, we'll simulate a stylized slider track via CSS based on value/max. */}
         <div 
-          className="absolute left-0 top-0 h-full bg-[var(--color-brand-accent)] rounded-full pointer-events-none z-10" 
+          className="absolute left-0 top-0 h-full bg-[var(--color-brand-accent)] rounded-full pointer-events-none z-10 transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]" 
           style={{ width: `${(Number(props.value || 0) / Number(props.max || 100)) * 100}%` }}
         />
         <div 
-          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white border-2 border-[var(--color-brand-accent)] shadow-sm pointer-events-none z-20"
+          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white border-2 border-[var(--color-brand-accent)] shadow-sm pointer-events-none z-20 transition-[left] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
           style={{ left: `calc(${(Number(props.value || 0) / Number(props.max || 100)) * 100}% - 10px)` }}
         />
       </div>

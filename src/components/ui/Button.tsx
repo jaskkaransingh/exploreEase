@@ -1,18 +1,30 @@
 import * as React from "react"
+import { motion, type HTMLMotionProps } from "framer-motion"
 import { cn } from "../../lib/utils"
+import { EASE, DURATION_FAST } from "../../lib/motion"
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends Omit<HTMLMotionProps<"button">, "ref"> {
   variant?: "default" | "outline" | "ghost" | "link";
   size?: "default" | "sm" | "lg" | "icon";
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
+    // §2 gesture feedback; "link" keeps its underline-only language
+    const gesture =
+      variant === "link"
+        ? {}
+        : {
+            whileHover: { scale: 1.04, transition: { duration: DURATION_FAST, ease: EASE } },
+            whileTap: { scale: 0.97, transition: { duration: DURATION_FAST, ease: EASE } },
+          }
+
     return (
-      <button
+      <motion.button
         ref={ref}
+        {...gesture}
         className={cn(
-          "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-[var(--color-brand-cream)] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-accent)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-[var(--color-brand-cream)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-accent)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 transition-[color,background-color,border-color,box-shadow]",
           {
             "bg-[var(--color-brand-accent)] text-white hover:bg-[var(--color-brand-accent-dark)] shadow-sm hover:shadow-md": variant === "default",
             "border border-[var(--color-brand-border)] bg-transparent hover:bg-[var(--color-brand-surface)] text-[var(--color-brand-charcoal)]": variant === "outline",
